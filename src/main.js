@@ -1,5 +1,6 @@
 import "./style.css";
 
+// Define app state
 const todos = [
   { id: 1, text: "Buy milk", completed: false },
   { id: 2, text: "Buy bread", completed: false },
@@ -8,12 +9,28 @@ const todos = [
 let nextTodId = 4;
 let filter = "all"; // can be "all", "active", or "completed"
 
+// Grab HTML elements
+const newTodoInput = document.getElementById("new-todo");
+const todoNav = document.getElementById("todo-nav");
+
 function renderTodos() {
   const todoListElement = document.getElementById("todo-list");
   todoListElement.innerHTML = "";
 
+  const filteredTodos = [];
   for (let i = 0; i < todos.length; i++) {
     const todo = todos[i];
+    if (filter === "all") {
+      filteredTodos.push(todo);
+    } else if (filter === "completed" && todo.completed === true) {
+      filteredTodos.push(todo);
+    } else if (filter === "active" && todo.completed === false) {
+      filteredTodos.push(todo);
+    }
+  }
+
+  for (let i = 0; i < filteredTodos.length; i++) {
+    const todo = filteredTodos[i];
 
     const todoItem = document.createElement("div");
     todoItem.classList.add("p-4", "todo-item");
@@ -46,8 +63,43 @@ function handleNewTodoKeyDown(event) {
   }
 }
 
+function renderTodoNavBar(href) {
+  const elements = todoNav.children;
+  for (let i = 0; i < elements.length; i++) {
+    const element = elements[i];
+    if (element.href === href) {
+      element.classList.add( 
+        "underline",
+        "underline-offset-4", 
+        "decoration-rose-800", 
+        "decoration-2"
+      )
+    } else {
+      element.classList.remove(
+        "underline",
+        "underline-offset-4", 
+        "decoration-rose-800", 
+        "decoration-2"
+      )
+    }
+  }
+}
 
-const newTodoInput = document.getElementById("new-todo");
+function handleClickOnNavbar(event) {
+  if (event.target.tagName === "A") {
+    const href = event.target.href;
+    // href <- #/
+    // ["#", ""]
+    // ""
+    const action = href.split("/").pop();
+    filter = action === "" ? "all" : action;
+    renderTodos();
+    renderTodoNavBar(href);
+  }
+}
+
+// Add event listeners
 newTodoInput.addEventListener("keydown", handleNewTodoKeyDown);
+todoNav.addEventListener("click", handleClickOnNavbar);
 
 document.addEventListener("DOMContentLoaded", renderTodos);
