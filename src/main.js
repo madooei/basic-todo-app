@@ -1,5 +1,53 @@
 import "./style.css";
 
-const app = document.getElementById("app");
+const todos = [
+  { id: 1, text: "Buy milk", completed: false },
+  { id: 2, text: "Buy bread", completed: false },
+  { id: 3, text: "Buy jam", completed: true },
+]
+let nextTodId = 4;
+let filter = "all"; // can be "all", "active", or "completed"
 
-app.innerHTML = `<div class="flex items-center justify-center h-screen">Hello World!</div>`;
+function renderTodos() {
+  const todoListElement = document.getElementById("todo-list");
+  todoListElement.innerHTML = "";
+
+  for (let i = 0; i < todos.length; i++) {
+    const todo = todos[i];
+
+    const todoItem = document.createElement("div");
+    todoItem.classList.add("p-4", "todo-item");
+    todoListElement.appendChild(todoItem);
+
+    const todoText = document.createElement("div");
+    todoText.classList.add("todo-text");
+    todoText.textContent = todo.text;
+    if (todo.completed) {
+      todoText.classList.add("line-through");
+    }
+    todoItem.appendChild(todoText);
+
+    const todoInput = document.createElement("input");
+    todoInput.classList.add("hidden", "todo-edit");
+    todoInput.value = todo.text;
+    todoItem.appendChild(todoInput);
+  }
+}
+
+function handleNewTodoKeyDown(event) {
+  const newTodoInput = event.target;
+  const todoText = newTodoInput.value.trim();
+  if (event.key === "Enter" && todoText !== "") {
+    todos.push({
+      id: nextTodId++, text: todoText, completed: false
+    });
+    newTodoInput.value = "";
+    renderTodos();
+  }
+}
+
+
+const newTodoInput = document.getElementById("new-todo");
+newTodoInput.addEventListener("keydown", handleNewTodoKeyDown);
+
+document.addEventListener("DOMContentLoaded", renderTodos);
