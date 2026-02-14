@@ -30,13 +30,7 @@ function renderTodos() {
     }
   }
 
-  for (let i = 0; i < filteredTodos.length; i++) {
-    const todo = filteredTodos[i];
-
-    const todoItem = document.createElement("div");
-    todoItem.classList.add("p-4", "todo-item");
-    todoListElement.appendChild(todoItem);
-
+  const createTodoText = (todo) => {
     const todoText = document.createElement("div");
     todoText.classList.add("todo-text");
     todoText.setAttribute("id", `todo-text-${todo.id}`);
@@ -44,25 +38,32 @@ function renderTodos() {
     if (todo.completed) {
       todoText.classList.add("line-through");
     }
-    todoItem.appendChild(todoText);
+    return todoText;
+  }
 
+  const createTodoInput = (todo) => {
     const todoInput = document.createElement("input");
     todoInput.classList.add("hidden", "todo-edit");
     todoInput.value = todo.text;
-    todoItem.appendChild(todoInput);
+    return todoInput;
   }
-}
 
-function handleNewTodoKeyDown(event) {
-  const newTodoInput = event.target;
-  const todoText = newTodoInput.value.trim();
-  if (event.key === "Enter" && todoText !== "") {
-    todos.push({
-      id: nextTodId++, text: todoText, completed: false
-    });
-    newTodoInput.value = "";
-    renderTodos();
+  const createTodoItem = (todo) => {
+    const todoItem = document.createElement("div");
+    todoItem.classList.add("p-4", "todo-item");
+    todoItem.append(
+      createTodoText(todo),
+      createTodoInput(todo)
+    );
+    return todoItem;
   }
+
+  // filteredTodos.forEach((todo) => {
+  //   todoListElement.appendChild(createTodoItem(todo));
+  // });
+
+  const todoItems = filteredTodos.map(createTodoItem);
+  todoListElement.append(...todoItems);
 }
 
 function renderTodoNavBar(href) {
@@ -84,6 +85,18 @@ function renderTodoNavBar(href) {
         "decoration-2"
       )
     }
+  }
+}
+
+function handleNewTodoKeyDown(event) {
+  const newTodoInput = event.target;
+  const todoText = newTodoInput.value.trim();
+  if (event.key === "Enter" && todoText !== "") {
+    todos.push({
+      id: nextTodId++, text: todoText, completed: false
+    });
+    newTodoInput.value = "";
+    renderTodos();
   }
 }
 
