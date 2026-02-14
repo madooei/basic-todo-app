@@ -1,11 +1,11 @@
 import "./style.css";
 
 // Define app state
-const todos = [
+let todos = [
   { id: 1, text: "Buy milk", completed: false },
   { id: 2, text: "Buy bread", completed: false },
   { id: 3, text: "Buy jam", completed: true },
-]
+];
 let nextTodId = 4;
 let filter = "all"; // can be "all", "active", or "completed"
 
@@ -14,56 +14,61 @@ const newTodoInput = document.getElementById("new-todo");
 const todoNav = document.getElementById("todo-nav");
 const todoListElement = document.getElementById("todo-list");
 
-function renderTodos() {
-  const todoListElement = document.getElementById("todo-list");
-  todoListElement.innerHTML = "";
-
-  const filteredTodos = [];
-  for (let i = 0; i < todos.length; i++) {
-    const todo = todos[i];
-    if (filter === "all") {
-      filteredTodos.push(todo);
-    } else if (filter === "completed" && todo.completed === true) {
-      filteredTodos.push(todo);
-    } else if (filter === "active" && todo.completed === false) {
-      filteredTodos.push(todo);
-    }
+const addTodo = (todoText) => [
+  ...todos,
+  {
+    id: nextTodId++,
+    text: todoText,
+    completed: false
   }
+]
 
-  const createTodoText = (todo) => {
-    const todoText = document.createElement("div");
-    todoText.classList.add("todo-text");
-    todoText.setAttribute("id", `todo-text-${todo.id}`);
-    todoText.textContent = todo.text;
-    if (todo.completed) {
-      todoText.classList.add("line-through");
-    }
-    return todoText;
+const filterTodos = (todos, filter) => {
+  if (filter === "active") {
+    return todos.filter((todo) => !todo.completed);
+  } else if (filter === "completed") {
+    return todos.filter((todo) => todo.completed);
+  } else {
+    return [...todos];
   }
+};
 
-  const createTodoInput = (todo) => {
-    const todoInput = document.createElement("input");
-    todoInput.classList.add("hidden", "todo-edit");
-    todoInput.value = todo.text;
-    return todoInput;
+const createTodoText = (todo) => {
+  const todoText = document.createElement("div");
+  todoText.classList.add("todo-text");
+  todoText.setAttribute("id", `todo-text-${todo.id}`);
+  todoText.textContent = todo.text;
+  if (todo.completed) {
+    todoText.classList.add("line-through");
   }
+  return todoText;
+}
 
-  const createTodoItem = (todo) => {
-    const todoItem = document.createElement("div");
-    todoItem.classList.add("p-4", "todo-item");
-    todoItem.append(
-      createTodoText(todo),
-      createTodoInput(todo)
-    );
-    return todoItem;
-  }
+const createTodoInput = (todo) => {
+  const todoInput = document.createElement("input");
+  todoInput.classList.add("hidden", "todo-edit");
+  todoInput.value = todo.text;
+  return todoInput;
+}
 
-  // filteredTodos.forEach((todo) => {
-  //   todoListElement.appendChild(createTodoItem(todo));
-  // });
+const createTodoItem = (todo) => {
+  const todoItem = document.createElement("div");
+  todoItem.classList.add("p-4", "todo-item");
+  todoItem.append(
+    createTodoText(todo),
+    createTodoInput(todo)
+  );
+  return todoItem;
+}
 
-  const todoItems = filteredTodos.map(createTodoItem);
-  todoListElement.append(...todoItems);
+const renderTodos = () => {
+  // todoListElement.innerHTML = "";
+  // const filteredTodos = filterTodos(todos, filter);
+  // const todoItems = filteredTodos.map(createTodoItem);
+  // todoListElement.append(...todoItems);
+  todoListElement.replaceChildren(
+    ...filterTodos(todos, filter).map(createTodoItem)
+  );
 }
 
 function renderTodoNavBar(href) {
@@ -71,17 +76,17 @@ function renderTodoNavBar(href) {
   for (let i = 0; i < elements.length; i++) {
     const element = elements[i];
     if (element.href === href) {
-      element.classList.add( 
+      element.classList.add(
         "underline",
-        "underline-offset-4", 
-        "decoration-rose-800", 
+        "underline-offset-4",
+        "decoration-rose-800",
         "decoration-2"
       )
     } else {
       element.classList.remove(
         "underline",
-        "underline-offset-4", 
-        "decoration-rose-800", 
+        "underline-offset-4",
+        "decoration-rose-800",
         "decoration-2"
       )
     }
@@ -92,9 +97,7 @@ function handleNewTodoKeyDown(event) {
   const newTodoInput = event.target;
   const todoText = newTodoInput.value.trim();
   if (event.key === "Enter" && todoText !== "") {
-    todos.push({
-      id: nextTodId++, text: todoText, completed: false
-    });
+    todos = addTodo(todoText);
     newTodoInput.value = "";
     renderTodos();
   }
@@ -114,7 +117,7 @@ function handleClickOnNavbar(event) {
 }
 
 function handleClickOnTodoList(event) {
-  if(event.target.id.includes("todo-text")) {
+  if (event.target.id.includes("todo-text")) {
     const todoId = event.target.id.split("-").pop();
     const todoIdNumber = Number(todoId);
 
