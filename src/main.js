@@ -32,7 +32,16 @@ const createTodoApp = () => {
         todo.id === todoId ? { ...todo, completed: !todo.completed } : todo,
       )
     },
+    markAllCompleted: () => {
+      todos = todos.map(todo => ({ ...todo, completed: true }))
+    },
+    clearCompleted: () => {
+      todos = todos.filter(todo => !todo.completed)
+    },
     getTodos: () => filterTodos(),
+    getNumberOfActiveTodos: () => todos.reduce(
+      (count, todo) => count + (todo.completed ? 0 : 1), 0
+    ),
     setFilter: (newFilter) => {
       filter = newFilter;
     }
@@ -43,6 +52,9 @@ const createTodoApp = () => {
 const newTodoInput = document.getElementById("new-todo");
 const todoNav = document.getElementById("todo-nav");
 const todoListElement = document.getElementById("todo-list");
+const markAllCompleted = document.getElementById("mark-all-completed");
+const clearCompleted = document.getElementById("clear-completed");
+const activeTodoCount = document.getElementById("todo-count");
 
 const todoApp = createTodoApp();
 
@@ -78,6 +90,7 @@ const renderTodos = () => {
   todoListElement.replaceChildren(
     ...todoApp.getTodos().map(createTodoItem)
   );
+  activeTodoCount.textContent = `${todoApp.getNumberOfActiveTodos()} items left`;
 }
 
 const updateClassList = (element, isActive) => {
@@ -126,9 +139,20 @@ const handleClickOnTodoList = (event) => {
   }
 }
 
+const handleMarkAllCompleted = () => {
+  todoApp.markAllCompleted();
+  renderTodos();
+}
+
+const handleClearCompleted = () => {
+  todoApp.clearCompleted();
+  renderTodos();
+}
+
 // Add event listeners
 newTodoInput.addEventListener("keydown", handleNewTodoKeyDown);
 todoNav.addEventListener("click", handleClickOnNavbar);
 todoListElement.addEventListener("click", handleClickOnTodoList);
-
+markAllCompleted.addEventListener("click", handleMarkAllCompleted);
+clearCompleted.addEventListener("click", handleClearCompleted);
 document.addEventListener("DOMContentLoaded", renderTodos);
